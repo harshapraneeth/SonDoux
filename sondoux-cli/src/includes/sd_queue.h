@@ -9,7 +9,6 @@ typedef struct SDQueue
     
     int size;
     int max_size;
-
     int overwrite;
 } SDQueue;
 
@@ -55,8 +54,8 @@ SDQElem* pop(SDQueue* queue)
     if(queue->head)
     {
         elem = queue->head;
-
         queue->head = queue->head->next;
+
         if(queue->head) queue->head->prev = NULL;
         else queue->tail = NULL;
 
@@ -79,7 +78,9 @@ void push(SDQueue* queue, SDQElem* elem)
 
         while(queue->size >= queue->max_size)
         {
-            pop(queue);
+            delete_qelem(
+                pop(queue)
+            );
         }
     }
 

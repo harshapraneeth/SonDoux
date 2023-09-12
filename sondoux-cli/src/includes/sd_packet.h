@@ -8,10 +8,10 @@
 
 typedef struct SDPacket
 {
-    char data[MAX_BUFFER_SIZE];
-
     struct sockaddr_in src_addr;
     struct sockaddr_in dest_addr;
+
+    char data[MAX_BUFFER_SIZE];
 } SDPacket;
 
 const int PACKET_SIZE = sizeof(SDPacket);

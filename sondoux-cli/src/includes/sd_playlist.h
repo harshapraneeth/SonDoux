@@ -62,10 +62,11 @@ SDPlaylist* create_playlist(
         return NULL;
     }
 
-    i = find(directory, '.');
+    i = sd_find(directory, '.');
     if(i < n)
     {
-        copy_from(extension, directory, i+1, strlen(directory));
+        sd_copy_(extension, directory, 0, n, i+1, n);
+        extension[n-i-1] = '\0';
 
         if(
             strcmp(extension, "mp3") != 0 &&
@@ -100,10 +101,13 @@ SDPlaylist* create_playlist(
         {
             strcpy(filename, dir->d_name);
 
-            i = rfind(filename, '.');
+            i = sd_rfind(filename, '.');
             if(i<0) continue;
 
-            copy_from(extension, filename, i+1, strlen(filename));
+            n = strlen(filename);
+            sd_copy_(extension, filename, 0, n, i+1, n);
+            extension[n-i-1] = '\0';
+
             if(
                 strcmp(extension, "mp3") != 0 &&
                 strcmp(extension, "wav") != 0 &&

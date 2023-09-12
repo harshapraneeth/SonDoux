@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #define MINIAUDIO_IMPLEMENTATION
-#include "miniaudio.h"
+#include "../../../miniaudio/miniaudio.h"
 #include "sd_utils.h"
 
 typedef enum {playing, paused} SDSongState;

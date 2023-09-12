@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <pthread.h>
-#include <stdio.h>
 
 #include "sd_constants.h"
 
@@ -20,8 +19,9 @@ void delete_thread(SDThread* _thread)
 {
     if(!_thread) return;
 
-    pthread_mutex_destroy(&_thread->lock);
     stop_thread(_thread);
+    pthread_mutex_destroy(&_thread->lock);
+    
     free(_thread);
 }
 

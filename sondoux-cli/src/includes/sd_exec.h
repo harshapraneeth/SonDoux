@@ -57,7 +57,7 @@ char* exec(char* input)
     if(!output) return NULL;
     
     strcpy(output, "");
-    parse(input, cmd);
+    sd_parse(input, cmd);
 
     if(
         strcmp(cmd, "quit") == 0 || 
@@ -147,7 +147,7 @@ void sd_quit(char* input, char* output)
 
 void sd_clear(char* input, char* output)
 {
-    clear_screen();
+    sd_clear_screen();
 }
 
 void sd_play(char* input, char* output)
@@ -162,7 +162,7 @@ void sd_play(char* input, char* output)
     strcat(
         output, 
         (char *) current_playlist->current_elem->data + 
-        rfind(
+        sd_rfind(
             (char *) current_playlist->current_elem->data, 
             '/'
         ) + 1
@@ -182,7 +182,7 @@ void sd_pause(char* input, char* output)
     strcat(
         output, 
         (char *) current_playlist->current_elem->data + 
-        rfind(
+        sd_rfind(
             (char *) current_playlist->current_elem->data, 
             '/'
         ) + 1
@@ -205,7 +205,7 @@ void sd_open(char* input, char* output)
     strcat(
         output, 
         (char *) current_playlist->current_elem->data + 
-        rfind(
+        sd_rfind(
             (char *) current_playlist->current_elem->data, 
             '/'
         ) + 1
@@ -230,7 +230,7 @@ void sd_prev(char* input, char* output)
     strcat(
         output, 
         (char *) current_playlist->current_elem->data + 
-        rfind(
+        sd_rfind(
             (char *) current_playlist->current_elem->data, 
             '/'
         ) + 1
@@ -255,7 +255,7 @@ void sd_next(char* input, char* output)
     strcat(
         output, 
         (char *) current_playlist->current_elem->data + 
-        rfind(
+        sd_rfind(
             (char *) current_playlist->current_elem->data, 
             '/'
         ) + 1
@@ -287,18 +287,20 @@ void sd_time(char* input, char* output)
         current_playlist->current_song->sample_rate
     );
 
-    fill(time, ' ', 0, 59);
+    sd_fill(time, ' ', 0, 59);
     time[59] = '\0';
 
-    ttoa(curr, temp);
-    copy_to(time, temp, 0, 9);
+    sd_ttoa(curr, temp);
+    sd_copy_(time, temp, 0, 9, 0, 9);
+    temp[9] = '\0';
 
-    ttoa(total, temp);
-    copy_to(time, temp, 50, 59);
+    sd_ttoa(total, temp);
+    sd_copy_(time, temp, 50, 59, 0, 9);
+    time[59] = '\0';
 
     n = 9 + round((curr*40.0) / (total*1.0));
-    fill(time, '=', 9, n);
-    fill(time, '.', n, 50);
+    sd_fill(time, '=', 9, n);
+    sd_fill(time, '.', n, 50);
 
     strcat(output, time);
     strcat(output, "\n");
@@ -321,7 +323,7 @@ void sd_seek(char* input, char* output)
 
     if(input[0]=='+')
     {
-        copy_from(input, input, 1, strlen(input));
+        input++;
 
         seek_time(
             current_playlist->current_song,
@@ -355,7 +357,7 @@ void sd_seek(char* input, char* output)
 
 void sd_shuffle(char* input, char* output)
 {
-    trim(input);
+    sd_trim(input);
     SHUFFLE = strcmp(input, "on")==0;
 
     strcat(output, "shuffle: ");
@@ -364,7 +366,7 @@ void sd_shuffle(char* input, char* output)
 
 void sd_repeat(char* input, char* output)
 {
-    trim(input);
+    sd_trim(input);
     REPEAT = strcmp(input, "on")==0;
 
     strcat(output, "repeat: ");
@@ -373,7 +375,7 @@ void sd_repeat(char* input, char* output)
 
 void sd_autoplay(char* input, char* output)
 {
-    trim(input);
+    sd_trim(input);
     AUTOPLAY = strcmp(input, "on")==0;
 
     strcat(output, "autoplay: ");
@@ -436,7 +438,7 @@ void sd_scroll(char* input, char* output)
 
     if(input[0] == '+')
     {
-        copy_from(input, input, 1, strlen(input));
+        input++;
         index = current_playlist->display_index + atoi(input);
     }
 
@@ -491,7 +493,7 @@ void sd_scroll(char* input, char* output)
 
     while(elem && i<PLAYLIST_DISPLAY)
     {
-        itoa(
+        sd_itoa(
             current_playlist->display_index+i+1,
             temp, 10
         );
@@ -499,7 +501,7 @@ void sd_scroll(char* input, char* output)
         strcat(temp, ". ");
         strcat(
             temp, 
-            (char *) elem->data + rfind((char *) elem->data, '/') + 1
+            (char *) elem->data + sd_rfind((char *) elem->data, '/') + 1
         );
 
         strcat(output, temp);
@@ -527,7 +529,7 @@ void sd_jump(char* input, char* output)
     strcat(
         output, 
         (char *) current_playlist->current_elem->data + 
-        rfind(
+        sd_rfind(
             (char *) current_playlist->current_elem->data, 
             '/'
         ) + 1

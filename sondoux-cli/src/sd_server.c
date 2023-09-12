@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "sd_comm.h"
-#include "sd_exec.h"
+#include "includes/sd_comm.h"
+#include "includes/sd_exec.h"
 
 SDComm* server_comm = NULL;
 
@@ -55,11 +55,18 @@ int main(int argc, char** argv)
         LOCAL_HOST, SERVER_PORT,
         server_packet_handler, 10, 3
     );
-
-    while(!server_comm->stop_signal)
+    
+    if(server_comm)
     {
-        sd_block(&server_comm->stop_signal, 1000, 10);
+        printf("Server started.\n");
+
+        while(!server_comm->stop_signal)
+        {
+            sd_block(&server_comm->stop_signal, 1000, 10);
+        }
     }
+
+    else printf("Failed to Create the server.\n");
 
     delete_comm(server_comm);
     delete_playlist(current_playlist);

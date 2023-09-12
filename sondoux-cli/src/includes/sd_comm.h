@@ -243,7 +243,7 @@ void* sd_listen(void* args)
 void* sd_respond(void* args)
 {
     SDQElem* elem = NULL;
-    SDPacket* input_packet = NULL;
+    SDPacket* _input_packet = NULL;
     SDPacket* output_packet = NULL;
     SDComm* comm = NULL;
 
@@ -265,14 +265,14 @@ void* sd_respond(void* args)
             continue;
         }
 
-        input_packet = (SDPacket *) elem->data;
-        if(!input_packet)
+        _input_packet = (SDPacket *) elem->data;
+        if(!_input_packet)
         {
             delete_qelem(elem);
             continue;
         }
 
-        output_packet = (SDPacket *) comm->packet_handler(input_packet);
+        output_packet = (SDPacket *) comm->packet_handler(_input_packet);
         if(output_packet)
         {
             send_packet(comm, output_packet);

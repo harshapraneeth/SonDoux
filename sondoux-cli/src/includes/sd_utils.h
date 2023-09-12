@@ -21,7 +21,7 @@ int sd_max(int a, int b)
     return a>b ? a:b;
 }
 
-void clear_screen()
+void sd_clear_screen()
 {
     #ifdef WIN32
     system("cls");
@@ -45,26 +45,26 @@ void sd_sleep(float secs)
 
 void sd_block(void* flag, int timeout, int dt)
 {
-    int t = 0;
+    if(dt < 0) return;
 
-    while(t<timeout && !(*((int *) flag)))
+    while(timeout>0 && !(*((int *) flag)))
     {
         sd_sleep(dt);
-        t += dt;
+        timeout -= dt;
     }
 }
 
-int find(char* str, char x)
+int sd_find(char* str, char x)
 {
     int i = 0;
 
     if(!str) return 0;
 
-    while(str[i]!=x && str[i]!='\0') i++;
+    while(str[i]!='\0' && str[i]!=x) i++;
     return i;
 }
 
-int rfind(char* str, char x)
+int sd_rfind(char* str, char x)
 {
     int i = strlen(str)-1;
 
@@ -74,38 +74,33 @@ int rfind(char* str, char x)
     return i;
 }
 
-void copy_from(char* dest, char* src, int start, int end)
-{
-    int i = 0;
-
-    if(!dest) return;
-    if(!src) return;
-    if(start < 0) return;
-
-    while(start<end && src[start]!='\0') dest[i++] = src[start++];
-    dest[i] = '\0';
-}
-
-void copy_to(char* dest, char* src, int start, int end)
-{
-    int i = 0;
-
-    if(!dest) return;
-    if(!src) return;
-    if(start < 0) return;
-
-    while(start<end && src[i]!='\0') dest[start++] = src[i++];
-}
-
-void copy(char* dest, char* src)
+void sd_copy_(char* dest, char* src, int d_start, int d_end, int s_start, int s_end)
 {
     if(!dest) return;
     if(!src) return;
 
-    copy_from(dest, src, 0, strlen(src));
+    if(d_start < 0) return;
+    if(s_start < 0) return;
+
+    while(d_start<d_end && s_start<s_end && src[s_start]!='\0')
+    {
+        dest[d_start++] = src[s_start++];
+    }
 }
 
-void fill(char* str, char x, int start, int end)
+void sd_copy(char* dest, char* src)
+{
+    int n;
+
+    if(!dest) return;
+    if(!src) return;
+
+    n = strlen(src);
+    sd_copy_(dest, src, 0, n, 0, n);
+    dest[n] = '\0';
+}
+
+void sd_fill(char* str, char x, int start, int end)
 {
     if(!str) return;
     if(start < 0) return;
@@ -113,46 +108,95 @@ void fill(char* str, char x, int start, int end)
     while(start<end) str[start++] = x;
 }
 
-void ltrim(char* str)
+void sd_ltrim_(char* str, char x)
 {
-    int i = 0;
+    int i, n;
 
     if(!str) return;
+    n = strlen(str);
+    i = 0;
 
-    while((str[i]==' ' || str[i]=='\n') && str[i]!='\0') i++;
-    copy_from(str, str, i, strlen(str));
+    while(str[i]!='\0' && str[i]==x) i++;
+
+    sd_copy_(str, str, 0, n, i, n);
+    str[n-i] = '\0';
 }
 
-void rtrim(char* str)
+void sd_ltrim(char* str)
 {
-    int i = strlen(str)-1;
+    int i, n;
 
     if(!str) return;
+    n = strlen(str);
+    i = 0;
+
+    while(str[i]!='\0' && (str[i]==' ' || str[i]=='\n')) i++;
+
+    sd_copy_(str, str, 0, n, i, n);
+    str[n-i] = '\0';
+}
+
+void sd_rtrim_(char* str, char x)
+{
+    int i, n;
+
+    if(!str) return;
+    n = strlen(str);
+    i = n-1;
+
+    while(i>=0 && str[i]==x) i--;
+
+    sd_copy_(str, str, 0, n, 0, i+1);
+    str[i+1] = '\0';
+}
+
+void sd_rtrim(char* str)
+{
+    int i, n;
+
+    if(!str) return;
+    n = strlen(str);
+    i = n-1;
 
     while(i>=0 && (str[i]==' ' || str[i]=='\n')) i--;
-    copy_from(str, str, 0, i+1);
+
+    sd_copy_(str, str, 0, n, 0, i+1);
+    str[i+1] = '\0';
 }
 
-void trim(char* str)
+void sd_trim_(char* str, char x)
 {
-    ltrim(str);
-    rtrim(str);
+    sd_ltrim_(str, x);
+    sd_rtrim_(str, x);
 }
 
-void parse(char* input, char* cmd)
+void sd_trim(char* str)
 {
-    int i;
+    sd_ltrim(str);
+    sd_rtrim(str);
+}
+
+void sd_parse(char* input, char* cmd)
+{
+    int i, n;
 
     if(!input) return;
     if(!cmd) return;
 
-    trim(input);
+    sd_trim(input);
     
-    i = find(input, ' ');
-    copy_from(cmd, input, 0, i);
-    copy_from(input, input, i, strlen(input));
-    
-    ltrim(input);
+    i = sd_find(input, ' ');
+    n = strlen(input);
+
+    sd_copy_(cmd, input, 0, i, 0, i);
+    cmd[i] = '\0';
+
+    sd_copy_(input, input, 0, n, i, n);
+    input[n-i] = '\0';
+
+    sd_trim(input);
+    sd_trim_(input, '\"');
+    sd_trim(input);
 }
 
 // https://www.strudel.org.uk/itoa/
@@ -163,17 +207,16 @@ void parse(char* input, char* cmd)
     * Released under GPLv3.
 */
 
-char* itoa(int value, char* result, int base) 
+char* sd_itoa(int value, char* result, int base) 
 {
+    int tmp_value;
+
+    char tmp_char;
+    char* ptr = result;
+    char* ptr1 = result;
     char* str = "zyxwvutsrqponmlkjihgfedcba"
                 "9876543210123456789"
                 "abcdefghijklmnopqrstuvwxyz";
-
-    char* ptr = result;
-    char* ptr1 = result;
-    char tmp_char;
-
-    int tmp_value;
 
     if(!result) return NULL;
     if(base < 2) return NULL;
@@ -205,12 +248,9 @@ char* itoa(int value, char* result, int base)
     }
     
     return result;
-
-    FAIL_END:
-    return NULL;
 }
 
-char* ttoa(int time, char* result)
+char* sd_ttoa(int time, char* result)
 {
     int hrs, mins, secs, n; 
     char temp[20];

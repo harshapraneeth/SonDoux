@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "sd_constants.h": "c",
+        "sd_exec.h": "c"
+    }
+}

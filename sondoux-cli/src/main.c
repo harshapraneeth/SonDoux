@@ -1,15 +1,19 @@
-#include <stdio.h>
 #include <unistd.h>
 #include <windows.h>
+#include <stdio.h>
 
-#include "sd_constants.h"
+#include "includes/sd_constants.h"
+#include "includes/sd_utils.h"
 
 int main(int argc, char** argv)
 {
     int opt;
 
-    const char* server_process = "S:/SonDoux/sondoux-cli/sd_server.exe";
-    const char* client_process = "S:/SonDoux/sondoux-cli/sd_client.exe";
+    char server_process[MAX_BUFFER_SIZE];
+    char client_process[MAX_BUFFER_SIZE];
+
+    strcpy(server_process, "sd_server.exe ");
+    strcpy(client_process, "sd_client.exe ");
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
@@ -18,7 +22,7 @@ int main(int argc, char** argv)
     si.cb = sizeof(si);
     ZeroMemory(&pi, sizeof(pi));
 
-    while ((opt = getopt (argc, argv, "sc")) != -1)
+    while ((opt = getopt(argc, argv, "sc:")) != -1)
     {
         switch (opt)
         {
@@ -26,7 +30,7 @@ int main(int argc, char** argv)
 
                 CreateProcess(
                     NULL,           
-                    server_process,    
+                    (const char *) server_process,    
                     NULL, NULL, FALSE,
                     CREATE_NO_WINDOW | DETACHED_PROCESS,
                     NULL, NULL,
@@ -40,10 +44,14 @@ int main(int argc, char** argv)
 
             case 'c':
             
+                strcat(client_process, "\"");
+                strcat(client_process, optarg);
+                strcat(client_process, "\"");
                 system(client_process);
+
                 break;
 
-            default: abort ();
+            default: abort();
         }
     }
 

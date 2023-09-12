@@ -1,7 +1,7 @@
 #include <stdio.h>
 
-#include "sd_comm.h"
-#include "sd_exec.h"
+#include "includes/sd_comm.h"
+#include "includes/sd_exec.h"
 
 SDComm* client_comm = NULL;
 

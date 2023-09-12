@@ -32,7 +32,7 @@ SDQElem* create_qelem(void* data, int size)
     elem->data = malloc(size);
     if(!elem->data)
     {
-        delete_qelem(elem);
+        free(elem);
         return NULL;
     }
 
